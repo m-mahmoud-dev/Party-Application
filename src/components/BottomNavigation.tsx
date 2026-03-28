@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { ScreenName } from '../types/screens';
@@ -17,8 +18,10 @@ const items: Array<{ id: ScreenName; label: string; icon: ComponentProps<typeof 
 ];
 
 export function BottomNavigation({ active, onNavigate }: BottomNavigationProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <View style={styles.inner}>
         {items.map((item) => {
           const isActive = active === item.id;

@@ -32,7 +32,7 @@ const documents: DocItem[] = [
     status: 'Available',
     locked: false,
     content:
-      'This certifies that Mohamed Mahmoud is a registered member of the Party Digital Platform with membership ID MRT-2024-1847, effective from January 15, 2024.',
+      'This certifies that Alex Johnson is a registered member of the Party Digital Platform with membership ID MRT-2024-0001, effective from January 15, 2024.',
   },
   {
     id: 2,

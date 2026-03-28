@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
 import { AppButton } from '../components/AppButton';
 import { AppInput } from '../components/AppInput';
-import { BrandMarkCard } from '../components/BrandMarkCard';
 import { colors } from '../theme/colors';
 import { shadows } from '../theme/shadows';
 import { typography } from '../theme/typography';
@@ -13,52 +13,98 @@ import { RootStackParamList } from '../types/screens';
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export function LoginScreen({ navigation }: Props) {
+  const [membershipId, setMembershipId] = useState('');
+  const [accessCode, setAccessCode] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = () => {
+    if (!membershipId.trim() || !accessCode.trim()) {
+      setError('Please enter your membership number and access code.');
+      return;
+    }
+    setError('');
+    navigation.replace('Home');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerCenter}>
-            <View style={styles.logoWrap}>
-              <Text style={styles.logoEmoji}>🏛️</Text>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <View style={styles.headerCenter}>
+              <View style={styles.logoWrap}>
+                <Text style={styles.logoEmoji}>🏛️</Text>
+              </View>
+              <Text style={styles.headerTitle}>Party Digital Platform</Text>
+              <Text style={styles.headerSubtitle}>Member Login</Text>
             </View>
-            <Text style={styles.headerTitle}>Party Digital Platform</Text>
-            <Text style={styles.headerSubtitle}>Member Login</Text>
           </View>
-        </View>
 
-        <View style={styles.content}>
-          <View style={styles.card}>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Membership Number</Text>
-              <AppInput placeholder="Enter your membership ID" />
-            </View>
+          <View style={styles.content}>
+            <View style={styles.card}>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Membership Number</Text>
+                <AppInput
+                  placeholder="Enter your membership ID"
+                  value={membershipId}
+                  onChangeText={(text) => {
+                    setMembershipId(text);
+                    if (error) setError('');
+                  }}
+                />
+              </View>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Access Code</Text>
-              <AppInput placeholder="Enter your code" secureTextEntry />
-            </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Access Code</Text>
+                <AppInput
+                  placeholder="Enter your code"
+                  secureTextEntry
+                  value={accessCode}
+                  onChangeText={(text) => {
+                    setAccessCode(text);
+                    if (error) setError('');
+                  }}
+                />
+              </View>
 
-            <AppButton
-              label="Login to Portal"
-              onPress={() => navigation.replace('Home')}
-              style={styles.loginButton}
-            />
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            <View style={styles.cardFooter}>
-              <Text style={styles.requestCode}>Request Access Code</Text>
-              <View style={styles.supportRow}>
-                <Feather name="phone" size={16} color={colors.secondaryText} />
-                <Text style={styles.supportText}>Support: +123 456 7890</Text>
+              <AppButton
+                label="Login to Portal"
+                onPress={handleLogin}
+                style={styles.loginButton}
+              />
+
+              <View style={styles.cardFooter}>
+                <Text
+                  style={styles.requestCode}
+                  onPress={() =>
+                    Alert.alert(
+                      'Request Access Code',
+                      'Please contact your branch administrator or call support at +123 456 7890 to receive your access code.',
+                      [{ text: 'OK' }],
+                    )
+                  }
+                >
+                  Request Access Code
+                </Text>
+                <View style={styles.supportRow}>
+                  <Feather name="phone" size={16} color={colors.secondaryText} />
+                  <Text style={styles.supportText}>Support: +123 456 7890</Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          <View style={styles.securityRow}>
-            <Feather name="shield" size={16} color={colors.secondaryText} />
-            <Text style={styles.securityText}>Secure Authentication</Text>
+            <View style={styles.securityRow}>
+              <Feather name="shield" size={16} color={colors.secondaryText} />
+              <Text style={styles.securityText}>Secure Authentication</Text>
+            </View>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -67,6 +113,9 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.lightGray,
+  },
+  keyboardAvoid: {
+    flex: 1,
   },
   container: {
     flex: 1,
@@ -125,6 +174,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.primaryText,
     marginBottom: 8,
+  },
+  errorText: {
+    ...typography.bodySm,
+    color: colors.errorRed,
+    marginBottom: 16,
+    textAlign: 'center',
   },
   loginButton: {
     width: '100%',

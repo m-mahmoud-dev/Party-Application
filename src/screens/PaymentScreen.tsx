@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { AppButton } from '../components/AppButton';
@@ -94,7 +94,18 @@ export function PaymentScreen({ navigation }: Props) {
                   { id: 'wallet', label: 'Digital Wallet', sub: 'PayPal, Apple Pay, etc.', icon: 'briefcase' as const },
                   { id: 'bank', label: 'Bank Transfer', sub: 'Direct bank payment', icon: 'home' as const },
                 ].map((method) => (
-                  <Pressable key={method.id} style={styles.optionRow} onPress={() => setShowPaymentModal(false)}>
+                  <Pressable
+                    key={method.id}
+                    style={styles.optionRow}
+                    onPress={() => {
+                      setShowPaymentModal(false);
+                      Alert.alert(
+                        '✅ Payment Initiated',
+                        `Your payment via ${method.label} is being processed. You will receive a confirmation shortly.`,
+                        [{ text: 'OK' }],
+                      );
+                    }}
+                  >
                     <View style={styles.optionIconWrap}>
                       <Feather name={method.icon} size={24} color={colors.deepBlue} />
                     </View>
