@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
-import { ComponentProps } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ComponentProps, useEffect, useState } from 'react';
+import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomNavigation } from '../components/BottomNavigation';
 import { StatusBadge } from '../components/StatusBadge';
@@ -26,7 +26,31 @@ const menuItems: Array<{
   { id: 'Settings', label: 'Settings', icon: 'settings', color: colors.secondaryText },
 ];
 
+const memberStats = [
+  { label: 'Meetings', value: '12' },
+  { label: 'Votes Cast', value: '8' },
+  { label: 'Streak', value: '3 mo' },
+];
+
 export function HomeDashboardScreen({ navigation }: Props) {
+  const [animatedValues] = useState<Animated.Value[]>(() =>
+    menuItems.map(() => new Animated.Value(0)),
+  );
+
+  useEffect(() => {
+    Animated.stagger(
+      80,
+      animatedValues.map((anim) =>
+        Animated.spring(anim, {
+          toValue: 1,
+          useNativeDriver: true,
+          tension: 60,
+          friction: 8,
+        }),
+      ),
+    ).start();
+  }, [animatedValues]);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
@@ -44,8 +68,8 @@ export function HomeDashboardScreen({ navigation }: Props) {
                     <Feather name="user" size={24} color={colors.deepBlue} />
                   </View>
                   <View>
-                    <Text style={styles.memberName}>Mohamed Mahmoud</Text>
-                    <Text style={styles.memberId}>ID: MRT-2024-1847</Text>
+                    <Text style={styles.memberName}>Alex Johnson</Text>
+                    <Text style={styles.memberId}>ID: MRT-2024-0001</Text>
                   </View>
                 </View>
                 <StatusBadge label="Active" />
@@ -67,14 +91,39 @@ export function HomeDashboardScreen({ navigation }: Props) {
               </View>
             </View>
 
+            <View style={styles.statsRow}>
+              {memberStats.map((stat) => (
+                <View key={stat.label} style={styles.statCard}>
+                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
+                </View>
+              ))}
+            </View>
+
             <View style={styles.grid}>
-              {menuItems.map((item) => (
-                <Pressable key={item.id} style={styles.gridItem} onPress={() => navigation.navigate(item.id)}>
-                  <View style={[styles.gridIconWrap, { backgroundColor: `${item.color}15` }]}> 
-                    <Feather name={item.icon} size={24} color={item.color} />
-                  </View>
-                  <Text style={styles.gridLabel}>{item.label}</Text>
-                </Pressable>
+              {menuItems.map((item, index) => (
+                <Animated.View
+                  key={item.id}
+                  style={{
+                    width: '48%',
+                    opacity: animatedValues[index],
+                    transform: [
+                      {
+                        translateY: animatedValues[index].interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [24, 0],
+                        }),
+                      },
+                    ],
+                  }}
+                >
+                  <Pressable style={styles.gridItem} onPress={() => navigation.navigate(item.id)}>
+                    <View style={[styles.gridIconWrap, { backgroundColor: `${item.color}15` }]}>
+                      <Feather name={item.icon} size={24} color={item.color} />
+                    </View>
+                    <Text style={styles.gridLabel}>{item.label}</Text>
+                  </Pressable>
+                </Animated.View>
               ))}
             </View>
           </View>
@@ -124,7 +173,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 16,
     padding: 24,
-    marginBottom: 24,
+    marginBottom: 16,
     ...shadows.card,
   },
   profileTopRow: {
@@ -171,6 +220,29 @@ const styles = StyleSheet.create({
     ...typography.bodySm,
     color: colors.primaryText,
   },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    ...shadows.sm,
+  },
+  statValue: {
+    ...typography.h3,
+    color: colors.deepBlue,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  statLabel: {
+    ...typography.bodyXs,
+    color: colors.secondaryText,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -178,7 +250,6 @@ const styles = StyleSheet.create({
     rowGap: 16,
   },
   gridItem: {
-    width: '48%',
     backgroundColor: colors.white,
     borderRadius: 16,
     padding: 24,

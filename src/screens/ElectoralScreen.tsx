@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
-import { useState } from 'react';
+import { Alert, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from '../components/AppButton';
@@ -100,6 +100,11 @@ export function ElectoralScreen({ navigation }: Props) {
     }
 
     setApplications((previous) => [...previous, result.application!]);
+    Alert.alert(
+      '✅ Application Submitted',
+      `Your application for "${position.title}" has been submitted successfully. The Electoral Operations Committee will review it shortly.`,
+      [{ text: 'OK' }],
+    );
   };
 
   return (

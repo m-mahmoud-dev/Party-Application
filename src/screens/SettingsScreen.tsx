@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { AppButton } from '../components/AppButton';
@@ -16,6 +16,17 @@ export function SettingsScreen({ navigation }: Props) {
   const [pushEnabled, setPushEnabled] = useState(true);
   const [emailEnabled, setEmailEnabled] = useState(true);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+
+  const handleLogout = () => {
+    Alert.alert('Logout', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: () => navigation.replace('Login'),
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -60,7 +71,12 @@ export function SettingsScreen({ navigation }: Props) {
                   value={twoFactorEnabled}
                   onChange={setTwoFactorEnabled}
                 />
-                <SettingLinkItem icon="lock" label="Privacy Settings" description="Manage your privacy preferences" />
+                <SettingLinkItem
+                  icon="lock"
+                  label="Privacy Settings"
+                  description="Manage your privacy preferences"
+                  onPress={() => Alert.alert('Privacy Settings', 'Privacy settings management coming soon.', [{ text: 'OK' }])}
+                />
               </View>
             </View>
 
@@ -70,8 +86,18 @@ export function SettingsScreen({ navigation }: Props) {
               </View>
 
               <View style={styles.itemList}>
-                <SettingLinkItem icon="globe" label="Language" description="English" />
-                <SettingLinkItem icon="help-circle" label="Help & Support" description="Get help with the platform" />
+                <SettingLinkItem
+                  icon="globe"
+                  label="Language"
+                  description="English"
+                  onPress={() => Alert.alert('Language', 'Additional languages coming soon.', [{ text: 'OK' }])}
+                />
+                <SettingLinkItem
+                  icon="help-circle"
+                  label="Help & Support"
+                  description="Get help with the platform"
+                  onPress={() => Alert.alert('Help & Support', 'For assistance, contact support@party.org or call +123 456 7890.', [{ text: 'OK' }])}
+                />
               </View>
             </View>
 
@@ -80,6 +106,7 @@ export function SettingsScreen({ navigation }: Props) {
               variant="outline"
               textColor={colors.errorRed}
               style={styles.logoutBtn}
+              onPress={handleLogout}
             />
 
             <View style={styles.versionWrap}>
@@ -127,11 +154,12 @@ type LinkItemProps = {
   icon: React.ComponentProps<typeof Feather>['name'];
   label: string;
   description: string;
+  onPress?: () => void;
 };
 
-function SettingLinkItem({ icon, label, description }: LinkItemProps) {
+function SettingLinkItem({ icon, label, description, onPress }: LinkItemProps) {
   return (
-    <View style={styles.settingItem}>
+    <Pressable style={styles.settingItem} onPress={onPress}>
       <View style={styles.itemLeft}>
         <View style={styles.iconWrap}>
           <Feather name={icon} size={20} color={colors.deepBlue} />
@@ -142,7 +170,7 @@ function SettingLinkItem({ icon, label, description }: LinkItemProps) {
         </View>
       </View>
       <Feather name="chevron-right" size={20} color={colors.secondaryText} />
-    </View>
+    </Pressable>
   );
 }
 

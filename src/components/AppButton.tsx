@@ -33,7 +33,10 @@ export function AppButton({
     (variant === 'outline' || variant === 'ghost' ? colors.primaryText : colors.white);
 
   return (
-    <Pressable onPress={onPress} style={[styles.base, { height }, variantStyle, style]}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.base, { height, opacity: pressed ? 0.75 : 1 }, variantStyle, style]}
+    >
       <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
     </Pressable>
   );

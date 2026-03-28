@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMemo, useState } from 'react';
 import { AppButton } from '../components/AppButton';
@@ -97,9 +97,31 @@ export function MapScreen({ navigation }: Props) {
 
               {viewMode === 'map' ? (
                 <View style={styles.mapPlaceholder}>
-                  <Feather name="map-pin" size={48} color={colors.deepBlue} />
-                  <Text style={styles.mapPlaceholderText}>Map view placeholder</Text>
-                  <Text style={styles.mapPlaceholderSub}>Interactive map would display here</Text>
+                  <View style={styles.mapGrid}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <View
+                        key={`row-${i}`}
+                        style={[styles.mapGridRow, { top: `${(i + 1) * 16.66}%` }]}
+                      />
+                    ))}
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <View
+                        key={`col-${i}`}
+                        style={[styles.mapGridCol, { left: `${(i + 1) * 16.66}%` }]}
+                      />
+                    ))}
+                  </View>
+                  <View style={styles.mapRoadH} />
+                  <View style={styles.mapRoadV} />
+                  <View style={styles.mapPinWrap}>
+                    <View style={styles.mapPinOuter}>
+                      <Feather name="map-pin" size={28} color={colors.errorRed} />
+                    </View>
+                  </View>
+                  <View style={styles.mapLabel}>
+                    <Feather name="navigation" size={12} color={colors.royalBlue} />
+                    <Text style={styles.mapLabelText}>Central Headquarters</Text>
+                  </View>
                 </View>
               ) : null}
 
@@ -130,8 +152,27 @@ export function MapScreen({ navigation }: Props) {
                     </View>
 
                     <View style={styles.actionsRow}>
-                      <AppButton label="Get Directions" variant="outline" style={styles.actionBtn} height={32} />
-                      <AppButton label="Call" style={styles.actionBtn} height={32} />
+                      <AppButton
+                        label="Get Directions"
+                        variant="outline"
+                        style={styles.actionBtn}
+                        height={32}
+                        onPress={() =>
+                          Alert.alert(
+                            'Get Directions',
+                            `Opening directions to ${hq.name} at ${hq.address}.`,
+                            [{ text: 'OK' }],
+                          )
+                        }
+                      />
+                      <AppButton
+                        label="Call"
+                        style={styles.actionBtn}
+                        height={32}
+                        onPress={() =>
+                          Linking.openURL(`tel:${hq.phone.replace(/\s/g, '')}`)
+                        }
+                      />
                     </View>
                   </View>
                 ))}
@@ -205,19 +246,81 @@ const styles = StyleSheet.create({
   },
   mapPlaceholder: {
     height: 256,
-    backgroundColor: colors.mediumGray,
+    backgroundColor: '#E8F0E8',
+    overflow: 'hidden',
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  mapPlaceholderText: {
-    ...typography.bodySm,
-    color: colors.secondaryText,
-    marginTop: 8,
+  mapGrid: {
+    ...StyleSheet.absoluteFillObject,
   },
-  mapPlaceholderSub: {
+  mapGridRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.06)',
+  },
+  mapGridCol: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 1,
+    backgroundColor: 'rgba(0,0,0,0.06)',
+  },
+  mapRoadH: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 8,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    top: '50%',
+  },
+  mapRoadV: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 8,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    left: '50%',
+  },
+  mapPinWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mapPinOuter: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  mapLabel: {
+    position: 'absolute',
+    bottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.white,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  mapLabelText: {
     ...typography.bodyXs,
-    color: colors.secondaryText,
-    marginTop: 4,
+    color: colors.royalBlue,
   },
   locationList: {
     padding: 16,
